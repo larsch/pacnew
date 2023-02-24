@@ -1,0 +1,118 @@
+#!/bin/bash
+set -eu
+BD="\x1b[1;33;4m"
+NM="\x1b[0m"
+DS="\x1b[37m"
+
+hidecomments() {
+    grep "^ *[^#]" "$@"
+}
+
+while read -r pacnew <&5; do
+    dirname=$(dirname "$pacnew")
+    basename=$(basename -s .pacnew "$pacnew")
+    active=$dirname/$basename
+    pacstock=$dirname/$basename.packstock
+    pacsave=$dirname/$basename.pacsave
+    pacnewbasename=$(basename "$pacnew")
+    pacnewdirname=$(dirname "$pacnew")
+
+    if [[ -f "${active}.pacold" && ! -e "${pacstock}" ]]; then
+        (set -x; mv "${active}.pacold" "${pacstock}")
+    fi
+
+    while true; do
+        echo -en \
+            "\n${pacnewdirname}/\x1b[32m${pacnewbasename}${NM}: ${BD}i${NM}nstall, ${BD}m${NM}ove, ${BD}r${NM}emove, ${BD}e${NM}dit, ${BD}s${NM}kip, ${BD}q${NM}uit, ${BD}d${NM}iff"
+        if [[ -f "$pacstock" ]]; then
+            echo -en ", ${BD}c${NM}hanges"
+        else
+            echo -en ", ${DS}changes${NM}"
+        fi
+        echo -en ", ${BD}h${NM}elp${BD}?${NM} "
+
+
+        read -rsn1 key <&0
+        case "$key" in
+            '?'|h)
+                echo -e "\n\x1b[4mStatus${NM}:"
+                echo -e "     current: ${active}"
+                echo -e "      pacnew: ${pacnew}"
+                if [[ -f "$pacstock" ]]; then
+                    echo -e "    pacstock: ${pacstock}"
+                else
+                    echo -e "    pacstock: Not found"
+                fi
+
+                echo -e "\n\x1b[4mReview${NM}:"
+                echo -e "     ${BD}d${NM}iff: show difference from current to .pacnew (${BD}D${NM} to hide comments)"
+                if [[ -f "$pacstock" ]]; then
+                    echo -e "  ${BD}c${NM}hanges: show changes from .pacstock to .pacnew (${BD}C${NM} to hide comments)"
+                else
+                    echo -e "  ${DS}changes: show changes from .pacstock to .pacnew (.pakstock not found)${NM}"
+                fi
+                echo -e "\n\x1b[4mActions\x1b[0m:"
+                echo -e "     ${BD}e${NM}dit: edit current configuration with \$EDITOR (${BD}E${NM} to edit .pacnew)"
+                echo -e "  ${BD}i${NM}nstall: replace current configuration with .pacnew (current moved to .pacsave)"
+                echo -e "     ${BD}m${NM}ove: move .pacnew to .pacstock (save it)"
+                echo -e "   ${BD}r${NM}emove: delete .pacnew permanently"
+                echo -e "     ${BD}s${NM}kip: skip for now"
+                echo -e "     ${BD}q${NM}uit: abort"
+                ;;
+
+            e)
+                (set -x;  ${EDITOR} "$active") ||:
+                ;;
+            E)
+                (set -x;  ${EDITOR} "$pacnew") ||:
+                ;;
+            d)
+                echo diff
+                (set -x; diff --color=auto "$active" "$pacnew") ||:
+                ;;
+            D)
+                echo diff
+                (set -x; diff --color=auto <(grep "^ *[^#]" "$active") <(grep "^ *[^#]" "$pacnew")) ||:
+                ;;
+            c)
+                echo changes
+                (set -x; diff "$pacstock" "$pacnew") ||:
+                ;;
+            C)
+                echo changes
+                (set -x; diff <(grep "^ *[^#]" "$pacstock") <(grep "^ *[^#]" "$pacnew")) ||:
+                ;;
+            i)
+                echo install
+                (set -x; mv -i "$active" "$pacsave"; mv -i "$pacnew" "$active")
+                break
+                ;;
+            m)
+                echo move
+                (set -x; mv "$pacnew" "$pacstock")
+                break
+                ;;
+            r)
+                echo remove
+                (set -x; rm "$pacnew")
+                break
+                ;;
+            s)
+                echo skip
+                break
+                ;;
+            q)
+                echo quit
+                exit 1
+                ;;
+            K)
+                echo keep
+                (set -x; mv -i "$active" "$pacsave"; mv -i "$pacnew" "$active"; "$EDITOR" "$active")
+                break
+                ;;
+            *)
+                echo unknown
+                ;;
+        esac
+    done
+done 5< <(find /etc -name \*.pacnew)
