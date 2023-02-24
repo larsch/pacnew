@@ -5,6 +5,11 @@ Linux installation. It scans for `.pacnew` files installed by package upgrads
 and gives options to review difference, install it, delete it, or save for later
 (`.pacstock`).
 
+It improves on
+[pacdiff](https://wiki.archlinux.org/title/Pacman/Pacnew_and_Pacsave#Third-party_utilities)
+by adding commands to edit, diff without comments and save previous package
+configuration for future review (.pacstock).
+
 ## Usage
 
 ```sh
