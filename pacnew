@@ -12,13 +12,24 @@ while read -r pacnew <&5; do
     dirname=$(dirname "$pacnew")
     basename=$(basename -s .pacnew "$pacnew")
     active=$dirname/$basename
-    pacstock=$dirname/$basename.packstock
+    pacstock=$dirname/$basename.pacstock
     pacsave=$dirname/$basename.pacsave
     pacnewbasename=$(basename "$pacnew")
     pacnewdirname=$(dirname "$pacnew")
 
     if [[ -f "${active}.pacold" && ! -e "${pacstock}" ]]; then
         (set -x; mv "${active}.pacold" "${pacstock}")
+    fi
+    if [[ -f "${active}.packstock" && ! -e "{pacstock}" ]]; then
+        (set -x; mv "${active}.packstock" "${pacstock}")
+    fi
+
+    if [[ -f "${pacstock}" ]]; then
+        if cmp "$pacnew" "$pacstock"; then
+            echo "$pacnew is unchanged from $pacstock"
+            (set -x; rm "$pacnew")
+            continue
+        fi
     fi
 
     while true; do
