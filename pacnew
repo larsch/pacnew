@@ -4,9 +4,10 @@ BD="\x1b[1;33;4m"
 NM="\x1b[0m"
 DS="\x1b[37m"
 
-hidecomments() {
-    grep "^ *[^#]" "$@"
+nocomments() {
+    grep -Ev "^[[:space:]]*(#|$)" "$@"
 }
+
 
 while read -r pacnew <&5; do
     dirname=$(dirname "$pacnew")
@@ -83,7 +84,7 @@ while read -r pacnew <&5; do
                 ;;
             D)
                 echo diff
-                (set -x; diff --color=auto <(grep "^ *[^#]" "$active") <(grep "^ *[^#]" "$pacnew")) ||:
+                (set -x; diff --color=auto <(nocomments "$active") <(nocomments "$pacnew")) ||:
                 ;;
             c)
                 echo changes
@@ -91,7 +92,7 @@ while read -r pacnew <&5; do
                 ;;
             C)
                 echo changes
-                (set -x; diff <(grep "^ *[^#]" "$pacstock") <(grep "^ *[^#]" "$pacnew")) ||:
+                (set -x; diff <(nocomments "$pacstock") <(nocomments "$pacnew")) ||:
                 ;;
             i)
                 echo install
