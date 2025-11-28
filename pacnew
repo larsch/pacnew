@@ -58,7 +58,7 @@ while read -r pacnew <&5; do
                 fi
                 echo -e "\n\x1b[4mActions\x1b[0m:"
                 echo -e "     ${BD}e${NM}dit: edit current configuration with \$EDITOR (${BD}E${NM} to edit .pacnew)"
-                echo -e "  ${BD}i${NM}nstall: replace current configuration with .pacnew (current moved to .pacsave)"
+                echo -e "  ${BD}i${NM}nstall: replace current configuration with .pacnew (current moved to .pacsave) (${BD}I${NM} to edit after install)"
                 echo -e "     ${BD}m${NM}ove: move .pacnew to .pacstock (save it)"
                 echo -e "   ${BD}r${NM}emove: delete .pacnew permanently"
                 echo -e "     ${BD}s${NM}kip: skip for now"
@@ -92,6 +92,11 @@ while read -r pacnew <&5; do
                 (set -x; mv -i "$active" "$pacsave"; mv -i "$pacnew" "$active")
                 break
                 ;;
+            I)
+                echo install & edit
+                (set -x; mv -i "$active" "$pacsave"; mv -i "$pacnew" "$active"; "$EDITOR" "$active")
+                break
+                ;;
             m)
                 echo move
                 (set -x; mv "$pacnew" "$pacstock")
@@ -109,11 +114,6 @@ while read -r pacnew <&5; do
             q)
                 echo quit
                 exit 1
-                ;;
-            K)
-                echo keep
-                (set -x; mv -i "$active" "$pacsave"; mv -i "$pacnew" "$active"; "$EDITOR" "$active")
-                break
                 ;;
             *)
                 echo unknown
