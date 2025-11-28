@@ -3,6 +3,7 @@ set -eu
 BD="\x1b[1;33;4m"
 NM="\x1b[0m"
 DS="\x1b[37m"
+DARK="\x1b[90m"
 
 nocomments() {
     grep -Ev "^[[:space:]]*(#|$)" "$@"
@@ -46,8 +47,6 @@ while read -r pacnew <&5; do
             "\n${pacnewdirname}/\x1b[32m${pacnewbasename}${NM}: ${BD}i${NM}nstall, ${BD}m${NM}ove, ${BD}r${NM}emove, ${BD}e${NM}dit, ${BD}s${NM}kip, ${BD}q${NM}uit, ${BD}d${NM}iff"
         if [[ -f "$pacstock" ]]; then
             echo -en ", ${BD}c${NM}hanges"
-        else
-            echo -en ", ${DS}changes${NM}"
         fi
         echo -en ", ${BD}h${NM}elp${BD}?${NM} "
 
@@ -69,7 +68,7 @@ while read -r pacnew <&5; do
                 if [[ -f "$pacstock" ]]; then
                     echo -e "  ${BD}c${NM}hanges: show changes from .pacstock to .pacnew (${BD}C${NM} to hide comments)"
                 else
-                    echo -e "  ${DS}changes: show changes from .pacstock to .pacnew (.pakstock not found)${NM}"
+                    echo -e "  ${DARK}changes: show changes from .pacstock to .pacnew (.pacstock not found)${NM}"
                 fi
                 echo -e "\n\x1b[4mActions\x1b[0m:"
                 echo -e "     ${BD}e${NM}dit: edit current configuration with $editor (${BD}E${NM} to edit .pacnew)"
