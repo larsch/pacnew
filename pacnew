@@ -26,6 +26,11 @@ while read -r pacnew <&5; do
         fi
     fi
 
+    if [[ ! -r "$active" || ! -w "$active" ]]; then
+        echo "Skipping $pacnew: insufficient permissions to read/write $active"
+        continue
+    fi
+
     while true; do
         echo -en \
             "\n${pacnewdirname}/\x1b[32m${pacnewbasename}${NM}: ${BD}i${NM}nstall, ${BD}m${NM}ove, ${BD}r${NM}emove, ${BD}e${NM}dit, ${BD}s${NM}kip, ${BD}q${NM}uit, ${BD}d${NM}iff"
@@ -120,4 +125,4 @@ while read -r pacnew <&5; do
                 ;;
         esac
     done
-done 5< <(find /etc -name \*.pacnew)
+done 5< <(find /etc -name \*.pacnew -type f 2>/dev/null)
