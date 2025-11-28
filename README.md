@@ -58,4 +58,6 @@ Actions:
   * <kbd>s</kbd> - skip without any change
   * <kbd>q</kbd> - quit
 
+## License
 
+This is free and unencumbered software released into the public domain. See the [UNLICENSE](UNLICENSE) file for details.
