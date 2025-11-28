@@ -18,13 +18,6 @@ while read -r pacnew <&5; do
     pacnewbasename=$(basename "$pacnew")
     pacnewdirname=$(dirname "$pacnew")
 
-    if [[ -f "${active}.pacold" && ! -e "${pacstock}" ]]; then
-        (set -x; mv "${active}.pacold" "${pacstock}")
-    fi
-    if [[ -f "${active}.packstock" && ! -e "{pacstock}" ]]; then
-        (set -x; mv "${active}.packstock" "${pacstock}")
-    fi
-
     if [[ -f "${pacstock}" ]]; then
         if cmp "$pacnew" "$pacstock"; then
             echo "$pacnew is unchanged from $pacstock"
